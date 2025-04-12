@@ -1,4 +1,9 @@
 
+/**
+        https://github.com/connormcd/misc-scripts/blob/master/hr_quick_start.sql
+*/
+
+
 CREATE the EMP_DETAILS_VIEW that joins the employees,
                                        jobs,
                                        REM departments,
