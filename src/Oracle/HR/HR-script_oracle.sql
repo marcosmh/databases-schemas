@@ -1,11 +1,6 @@
 --
--- ER/Studio 8.0 SQL Code Generation
--- Company :      Hewlett-Packard Company
--- Project :      hr_oracle.DM1
--- Author :       ProDesk
---
--- Date Created : Friday, November 21, 2014 13:55:56
--- Target DBMS : Oracle 11g
+-- ESQUEMA HR
+-- Target DBMS : Oracle
 --
 
 -- 
@@ -263,6 +258,180 @@ ALTER TABLE LOCATIONS ADD CONSTRAINT LOC_C_ID_FK
     FOREIGN KEY (COUNTRY_ID)
     REFERENCES COUNTRIES(COUNTRY_ID)
 ;
+
+-- 
+-- INDEX: DEPT_LOCATION_IX 
+--
+
+CREATE INDEX DEPT_LOCATION_IX ON DEPARTMENTS(LOCATION_ID)
+;
+-- 
+-- INDEX: EMP_DEPARTMENT_IX 
+--
+
+CREATE INDEX EMP_DEPARTMENT_IX ON EMPLOYEES(DEPARTMENT_ID)
+;
+-- 
+-- INDEX: EMP_JOB_IX 
+--
+
+CREATE INDEX EMP_JOB_IX ON EMPLOYEES(JOB_ID)
+;
+-- 
+-- INDEX: EMP_MANAGER_IX 
+--
+
+CREATE INDEX EMP_MANAGER_IX ON EMPLOYEES(MANAGER_ID)
+;
+-- 
+-- INDEX: EMP_NAME_IX 
+--
+
+CREATE INDEX EMP_NAME_IX ON EMPLOYEES(LAST_NAME, FIRST_NAME)
+;
+-- 
+-- INDEX: JHIST_JOB_IX 
+--
+
+CREATE INDEX JHIST_JOB_IX ON JOB_HISTORY(JOB_ID)
+;
+-- 
+-- INDEX: JHIST_EMPLOYEE_IX 
+--
+
+CREATE INDEX JHIST_EMPLOYEE_IX ON JOB_HISTORY(EMPLOYEE_ID)
+;
+-- 
+-- INDEX: JHIST_DEPARTMENT_IX 
+--
+
+CREATE INDEX JHIST_DEPARTMENT_IX ON JOB_HISTORY(DEPARTMENT_ID)
+;
+-- 
+-- INDEX: LOC_CITY_IX 
+--
+
+CREATE INDEX LOC_CITY_IX ON LOCATIONS(CITY)
+;
+-- 
+-- INDEX: LOC_STATE_PROVINCE_IX 
+--
+
+CREATE INDEX LOC_STATE_PROVINCE_IX ON LOCATIONS(STATE_PROVINCE)
+;
+-- 
+-- INDEX: LOC_COUNTRY_IX 
+--
+
+CREATE INDEX LOC_COUNTRY_IX ON LOCATIONS(COUNTRY_ID)
+;
+
+
+CREATE SEQUENCE DEPARTMENTS_SEQ 
+    INCREMENT BY 10 
+    MAXVALUE 9990 
+    MINVALUE 1 
+    NOCACHE 
+;
+
+
+CREATE SEQUENCE EMPLOYEES_SEQ 
+    INCREMENT BY 1 
+    MAXVALUE 9999999999999999999999999999 
+    MINVALUE 1 
+    NOCACHE 
+;
+
+
+CREATE SEQUENCE LOCATIONS_SEQ 
+    INCREMENT BY 100 
+    MAXVALUE 9900 
+    MINVALUE 1 
+    NOCACHE 
+;
+
+
+CREATE OR REPLACE TRIGGER SECURE_EMPLOYEES 
+    BEFORE INSERT OR UPDATE OR DELETE ON EMPLOYEES 
+    FOR EACH ROW 
+BEGIN
+  secure_dml;
+END secure_employees; 
+
+
+
+
+CREATE OR REPLACE TRIGGER UPDATE_JOB_HISTORY 
+    AFTER UPDATE OF JOB_ID, DEPARTMENT_ID ON EMPLOYEES 
+    FOR EACH ROW 
+BEGIN
+  add_job_history(:old.employee_id, :old.hire_date, sysdate,
+                  :old.job_id, :old.department_id);
+END; 
+
+
+
+
+CREATE OR REPLACE PROCEDURE add_job_history
+  (  p_emp_id          job_history.employee_id%type
+   , p_start_date      job_history.start_date%type
+   , p_end_date        job_history.end_date%type
+   , p_job_id          job_history.job_id%type
+   , p_department_id   job_history.department_id%type
+   )
+IS
+BEGIN
+  INSERT INTO job_history (employee_id, start_date, end_date,
+                           job_id, department_id)
+    VALUES(p_emp_id, p_start_date, p_end_date, p_job_id, p_department_id);
+END add_job_history;
+
+
+CREATE OR REPLACE PROCEDURE secure_dml
+IS
+BEGIN
+  IF TO_CHAR (SYSDATE, 'HH24:MI') NOT BETWEEN '08:00' AND '18:00'
+        OR TO_CHAR (SYSDATE, 'DY') IN ('SAT', 'SUN') THEN
+	RAISE_APPLICATION_ERROR (-20205,
+		'You may only make changes during normal office hours');
+  END IF;
+END secure_dml;
+
+
+
+
+CREATE OR REPLACE VIEW EMP_DETAILS_VIEW AS 
+SELECT
+  e.employee_id,
+  e.job_id,
+  e.manager_id,
+  e.department_id,
+  d.location_id,
+  l.country_id,
+  e.first_name,
+  e.last_name,
+  e.salary,
+  e.commission_pct,
+  d.department_name,
+  j.job_title,
+  l.city,
+  l.state_province,
+  c.country_name,
+  r.region_name
+FROM
+  employees e,
+  departments d,
+  jobs j,
+  locations l,
+  countries c,
+  regions r
+WHERE e.department_id = d.department_id
+  AND d.location_id = l.location_id
+  AND l.country_id = c.country_id
+  AND c.region_id = r.region_id
+  AND j.job_id = e.job_id
+WITH READ ONLY ;
+
 
 
 https://github.com/connormcd/misc-scripts/blob/master/hr_quick_start.sql

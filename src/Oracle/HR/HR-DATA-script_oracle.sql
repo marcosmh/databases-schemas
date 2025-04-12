@@ -1,65 +1,8 @@
 
-/**
-        https://github.com/connormcd/misc-scripts/blob/master/hr_quick_start.sql
-*/
-
-
-CREATE the EMP_DETAILS_VIEW that joins the employees,
-                                       jobs,
-                                       REM departments,
-                                       jobs,
-                                       countries,
-AND locations TABLE TO provide details REM about employees. Prompt ****** Creating EMP_DETAILS_VIEW view ...
-CREATE OR REPLACE
-VIEW emp_details_view (employee_id,
-job_id,
-manager_id,
-department_id,
-location_id,
-country_id,
-first_name,
-last_name,
-salary,
-commission_pct,
-department_name,
-job_title,
-city,
-state_province,
-country_name,
-region_name) AS
-SELECT
-        e.employee_id,
-        e.job_id,
-        e.manager_id,
-        e.department_id,
-        d.location_id,
-        l.country_id,
-        e.first_name,
-        e.last_name,
-        e.salary,
-        e.commission_pct,
-        d.department_name,
-        j.job_title,
-        l.city,
-        l.state_province,
-        c.country_name,
-        r.region_name
-FROM
-        employees e,
-        departments d,
-        jobs j,
-        locations l,
-        countries c,
-        regions r
-WHERE
-        e.department_id = d.department_id
-        AND d.location_id = l.location_id
-        AND l.country_id = c.country_id
-        AND c.region_id = r.region_id
-        AND j.job_id = e.job_id WITH READ ONLY;
-
-COMMIT;
-
+--
+-- ESQUEMA HR
+-- Target DBMS : Oracle
+-- DATA
 
         
 INSERT INTO regions
@@ -270,8 +213,7 @@ VALUES (3100, 'Pieter Breughelstraat 837', '3029SK', 'Utrecht', 'Utrecht', 'NL')
 INSERT INTO locations
 VALUES (3200, 'Mariano Escobedo 9991', '11932', 'Mexico City', 'Distrito Federal,', 'MX');
 
-END;
-Copy to clipboard | Top
+
 INSERT INTO countries
 VALUES ('IT', 'Italy', 1);
 
@@ -481,13 +423,7 @@ VALUES (260, 'Recruiting', NULL, 1700);
 INSERT INTO departments
 VALUES (270, 'Payroll', NULL, 1700);
 
-END;
 
-
-
-
-
-                
                 
 
 INSERT INTO jobs
@@ -565,7 +501,6 @@ VALUES ('HR_REP', 'Human Resources Representative', 4000, 9000);
 INSERT INTO jobs
 VALUES ('PR_REP', 'Public Relations Representative', 4500, 10500);
 
-END;
 
 
 INSERT INTO employees
@@ -995,8 +930,6 @@ VALUES (205, 'Shelley', 'Higgins', 'SHIGGINS', '515.123.8080', TO_DATE('07-06-20
 INSERT INTO employees
 VALUES (206, 'William', 'Gietz', 'WGIETZ', '515.123.8181', TO_DATE('07-06-2002', 'dd-MM-yyyy'), 'AC_ACCOUNT', 8300, NULL, 205, 110);
 
-END;
-
         
                 
 INSERT INTO job_history
@@ -1038,10 +971,8 @@ VALUES (176, TO_DATE('01-01-2007', 'dd-MM-yyyy'), TO_DATE('31-12-2007', 'dd-MM-y
 INSERT INTO job_history
 VALUES (200, TO_DATE('01-07-2002', 'dd-MM-yyyy'), TO_DATE('31-12-2006', 'dd-MM-yyyy'), 'AC_ACCOUNT', 90);
 
-END;            
-                
 
-
+        
 
 CREATE OR REPLACE PROCEDURE secure_dml 
 IS BEGIN 
